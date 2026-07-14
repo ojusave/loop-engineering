@@ -131,7 +131,7 @@ Require:
 
 ## State behavior
 
-When the receiving environment supports files, instruct it to use a gitignored `.loop/` directory or another local non-committed state location.
+When the receiving environment supports files and multi-cycle state is useful, instruct it to use `.loop/` or another local non-committed state location. Prefer a repository-local exclude mechanism; do not edit a tracked `.gitignore` unless explicitly authorized.
 
 The prompt must say not to store secrets, private data, or hidden reasoning.
 
@@ -139,23 +139,19 @@ When persistent files are unavailable, instruct it to maintain a compact visible
 
 ## Downstream specialist handoffs
 
-For complex tasks, direct one parent orchestrator to route work to specialists and integrate results.
+For complex tasks, direct one parent orchestrator to route work to check owners and integrate results. Define what a specialist means in the receiving environment:
+
+- use a real subagent, independent reviewer, or purpose-built checker when available
+- otherwise use a cold same-session pass with a file handoff
+- otherwise use a compact in-memory request/return receipt
+
+Do not let the receiver claim a handoff occurred when no recipient or cold pass actually performed the check.
 
 Do not instruct specialists to call one another freely.
 
-Require structured handoffs containing:
+Require a request containing the goal, artifact, inherited parent success criteria, current state, verified facts, remaining uncertainty, constraints, specialist task, acceptance checks, and predicted contribution.
 
-- objective
-- artifact
-- verified facts
-- evidence
-- known weaknesses
-- preserve/change boundaries
-- acceptance criteria
-- inherited parent outcome, target measure, guardrails, and required evidence state
-- expected contribution and predicted observation
-- actual observation, measured delta, and evidence state
-- return state
+Require a separate return section containing one status, findings, changes, evidence, actual observation, evidence state, unresolved uncertainty, and recommended next step. The parent must record a disposition and recheck the integrated result before closing the handoff.
 
 ## Prompt simulation
 

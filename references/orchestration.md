@@ -2,210 +2,145 @@
 
 ## Contents
 
-- [Parent and specialists](#parent-and-specialists)
-- [Routing questions](#routing-questions)
-- [Default compositions](#default-compositions)
-- [Parallelization](#parallelization)
-- [Handoff contract](#handoff-contract)
-- [Return states](#return-states)
-- [Conflict resolution](#conflict-resolution)
-- [Integration review](#integration-review)
-- [Avoid circular handoffs](#avoid-circular-handoffs)
+- [Parent and check owners](#parent-and-check-owners)
+- [Execution modes](#execution-modes)
+- [Routing](#routing)
+- [Handoff lifecycle](#handoff-lifecycle)
+- [Return and integration](#return-and-integration)
+- [Conflicts and stopping](#conflicts-and-stopping)
 
+## Parent and check owners
 
-## Parent and specialists
+Use one parent for the assignment. The parent owns the user outcome, success card, shared evidence, routing, budget, integration, approval boundaries, and terminal state.
 
-Use one parent orchestrator per user assignment.
+A specialist is the owner of one material failure check. It is not automatically a separate agent. The parent must know what can actually receive and execute the check before creating a handoff.
 
-The parent owns:
+Specialists inherit the parent target, measure, guardrails, and proof requirement. They may define local acceptance checks but must not weaken the assignment contract. They return to the parent rather than calling one another freely.
 
-- the final outcome
-- the outcome contract, required evidence state, and target measure
-- shared assumptions
-- routing
-- sequencing
-- budget
-- integration
-- escalation
-- terminal state
+## Execution modes
 
-A specialist owns one class of failure and returns a receipt.
+Select the strongest available mode and record it when independence matters.
 
-Specialists inherit the parent outcome contract. They may define local checks, but they must not silently redefine the assignment's target, threshold, intended context, or required evidence state.
+### Real specialist
 
-Do not create a peer-to-peer swarm. A specialist may identify the need for another specialist, but it must return that request to the parent.
+Use when a subagent, human reviewer, independent context, or purpose-built checker can actually receive a bounded task.
 
-## Routing questions
+1. Create and validate the handoff request.
+2. Deliver it to the named recipient.
+3. Require a completed return with evidence.
+4. Validate the return.
+5. Let the parent integrate and remeasure the overall target.
 
-Default compositions below are examples, not compulsory checklists. Derive the smallest composition from the current failure modes, then revise it if fresh evidence reveals a new risk or proves a specialist unnecessary.
+### Cold same-session pass
 
+Use when no independent recipient is available but files can preserve a clean request.
 
-Route by asking:
+1. Write the handoff.
+2. Reopen the original request, success card, handoff request, and target artifact.
+3. Ignore the maker's narrative and inspect from the named failure class.
+4. Complete the return and disclose that maker/checker independence was limited.
+5. Let the parent integrate and remeasure.
 
-1. What baseline-to-target change, decision, or capability is required?
-2. What evidence state must the assignment reach?
-3. What artifact or intervention may produce that result?
-4. What failure would be easy to miss if only the artifact were checked?
-5. What evidence can verify the artifact and validate the outcome?
-6. Which specialist can collect that evidence?
-7. Which checks must happen before implementation, after implementation, or both?
-8. Does success depend on an audience delta that must be established before wording or visual polish?
+### In-memory pass
 
-## Default compositions
+Use when neither an independent recipient nor useful file state exists. Keep a short request/return receipt in context. Do not claim independent review.
 
-### Product feature with UI
+An undelivered template, a role label, or a statement that a specialist “participated” is not a handoff.
 
-1. Freshness and portability, when new technology is considered
-2. Product UX before implementation
-3. Engineering implementation
-4. Engineering verification
-5. Rendered UI review
-6. Accessibility review
-7. Portability review, when architecture changed
-8. Parent integration and primary-flow rerun
+## Routing
 
-### Backend-only change
+Start with the failure that could let the artifact pass while the intended outcome fails. Add only check owners able to observe a material risk.
 
-1. Engineering
-2. Security or migration review when relevant
-3. Parent integration
+Common compositions are hypotheses, not mandatory pipelines:
 
-Do not invoke UI loops for truly non-user-facing work.
+- **Visible product feature:** product UX before implementation; engineering; rendered UI and accessibility after implementation; parent rerun.
+- **Backend-only change:** engineering; security, concurrency, or migration review only when relevant; parent integration.
+- **Research-backed article:** research and source incentives; audience value when attention matters; article; editorial and factual verification; parent integration.
+- **Public abstract:** evidence/access inventory; audience value; argument; editorial; promise verification; parent integration.
+- **Strategy:** current research when needed; strategy; feasibility and counterargument; parent integration.
+- **Downstream prompt:** task analysis; prompt generation; normal, failure, and false-success simulation; relevant domain review; parent integration.
 
-### Research-backed article
+Parallelize only genuinely independent checks with a clear integration contract. Do not parallelize work that depends on a shared experience contract or a single coherent argument.
 
-1. Adaptive evidence plan
-2. Research and source-incentive audit
-3. Audience-value and knowledge-advantage check when the article must earn attention
-4. Article argument and drafting
-5. Editorial anti-slop review
-6. Fact, citation, and source-independence verification
-7. Parent integration
+## Handoff lifecycle
 
-### Conference talk or public abstract
+Use `scripts/create_handoff.py` when persistent files are available. It reads the parent state and refuses to create a handoff until the baseline, target, measure, guardrails, proof requirement, and constraints are populated.
 
-1. Inventory the speaker's evidence, access, demonstration, findings, and disclosure limits
-2. Establish the commodity baseline and audience delta
-3. Shape the argument or talk contract
-4. Draft the title and description
-5. Editorial anti-slop review
-6. Verify that every promised advantage is supported and will appear in the talk
-7. Parent integration
+The artifact has three phases.
 
-### Strategy recommendation
+### Request
 
-1. Research when external facts matter
-2. Strategy
-3. Feasibility and counterargument review
-4. Parent integration
+The parent supplies:
 
-### Downstream prompt
+- goal and artifact
+- inherited parent success criteria
+- current state and already verified facts
+- remaining uncertainty
+- constraints and preserve/change boundaries
+- the bounded specialist task
+- observable acceptance checks
+- predicted contribution
 
-1. Task analysis
-2. Prompt generation
-3. Downstream simulation
-4. Domain specialist review for any code, UI, research, or writing behavior carried by the prompt
-5. Parent integration
+Validate this phase with:
 
-## Parallelization
-
-Parallelize only when subtasks are genuinely independent and their outputs have a clear integration contract.
-
-Good candidates:
-
-- research into separate factual questions
-- independent security and accessibility review
-- evaluation of two genuinely different architecture options
-
-Poor candidates:
-
-- two agents editing the same component without coordination
-- UX and implementation proceeding before a shared experience contract
-- several writers producing sections that require one consistent argument
-
-## Handoff contract
-
-Every handoff must contain:
-
-```text
-FROM:
-TO:
-OBJECTIVE:
-ARTIFACT:
-CURRENT VERSION OR PATH:
-PARENT OUTCOME AND TARGET MEASURE:
-BASELINE AND REQUIRED EVIDENCE STATE:
-VERIFIED FACTS:
-EVIDENCE OR COMMANDS:
-KNOWN WEAKNESSES:
-CONSTRAINTS AND NON-GOALS:
-MAY CHANGE:
-MUST PRESERVE:
-TARGET ACCEPTANCE CRITERIA:
-EXPECTED CONTRIBUTION AND PREDICTED OBSERVATION:
-ACTUAL OBSERVATION AND MEASURED DELTA:
-EVIDENCE STATE:
-RETURN STATE:
+```bash
+python3 scripts/validate_handoff.py <handoff> --stage request
 ```
 
-Use `scripts/create_handoff.py` when project files are available.
+### Return
 
-## Return states
+The recipient supplies the fields below. Record them with `scripts/complete_handoff.py return`; run `--help` for the full command:
 
-Specialists return one of:
+- one status: `PASS`, `REWORK_REQUIRED`, `BLOCKED`, or `NEEDS_HUMAN_JUDGMENT`
+- findings and changes
+- reproducible evidence
+- actual observation or decision-relevant learning
+- one evidence state
+- unresolved uncertainty
+- recommended next step
 
-- `PASS`: specialist acceptance passed
-- `REWORK_REQUIRED`: concrete failures remain and another pass is justified
-- `BLOCKED`: required evidence or environment is unavailable
-- `NEEDS_HUMAN_JUDGMENT`: the remaining decision is subjective or consequential
+Validate this phase with:
 
-They also report one evidence state: `NO RELIABLE EVIDENCE`, `ARTIFACT VERIFIED`, `OUTCOME VALIDATED`, or `DECISION READY`. The parent decides whether that local evidence advances the assignment's contracted target.
+```bash
+python3 scripts/validate_handoff.py <handoff> --stage return
+```
 
-Specialist `PASS` does not imply assignment `COMPLETE`.
+### Parent closure
 
-## Conflict resolution
+After integration, the parent records exactly one disposition: `ACCEPTED`, `REWORK`, or `ESCALATED`, plus evidence from rechecking the integrated result. Use `scripts/complete_handoff.py close`, then validate with `--stage closed`.
 
-When specialists conflict:
+The lifecycle status should move from `REQUESTED` to `RETURNED` to `CLOSED`. A valid return is not closed until the parent records its disposition.
 
-1. Identify which overall acceptance criterion is affected.
-2. Prefer evidence tied to the user's primary outcome.
+## Return and integration
+
+Specialist status and assignment status are different. A local `PASS` does not imply assignment `COMPLETE`.
+
+Before accepting a return, confirm that:
+
+- the recipient answered the bounded task
+- evidence supports the selected status and evidence state
+- remaining uncertainty is explicit
+- protected constraints remain intact
+- the return does not silently redefine success
+
+After accepting or applying changes, the parent reruns the primary scenario and remeasures the parent target. For multi-specialist work, also check that terminology, assumptions, UX requirements, implementation states, accessibility, factual meaning, and technology constraints still agree.
+
+If only artifact checks are possible, report `ARTIFACT VERIFIED` and preserve the validation gap.
+
+## Conflicts and stopping
+
+When checks conflict:
+
+1. Identify the parent acceptance criterion affected.
+2. Prefer evidence closest to the user's intended outcome.
 3. Preserve non-negotiable safety and accessibility requirements.
-4. Test the disputed behavior with a real scenario when possible.
-5. Escalate when the tradeoff is product taste, cost, risk, or authority.
+4. Run a representative scenario when possible.
+5. Escalate taste, cost, risk, values, or authority decisions.
 
-Do not average incompatible recommendations.
-
-## Integration review
-
-The parent must verify the assembled result, not merely collect specialist passes.
-
-Check:
-
-- terminology and assumptions align
-- implementation matches the experience contract
-- backend failures are visible and recoverable in the interface
-- accessibility changes preserve intended interaction
-- framework choices match repository constraints
-- article claims match research and source incentives are disclosed or appropriately discounted
-- public arguments preserve the supported audience delta and do not replace it with biography, hype, or generic takeaways
-- editorial changes preserve factual meaning
-- generated prompts carry all required domain checks
-- the integrated artifact is remeasured against the parent baseline, target, threshold, guardrails, and required evidence state
-
-After integration changes, rerun the primary end-to-end scenario and remeasure the parent outcome. If only artifact checks are possible, report `ARTIFACT VERIFIED` and preserve the validation gap.
-
-## Avoid circular handoffs
-
-Never allow:
+Do not average incompatible recommendations. Route rework through the parent:
 
 ```text
-engineering -> ux -> engineering -> accessibility -> ux -> engineering -> ...
+specialist -> parent -> prioritized rework -> targeted verification -> parent
 ```
 
-Instead:
-
-```text
-specialist -> parent -> prioritized rework -> specialist verification -> parent
-```
-
-The parent records each cycle, measures improvement, and stops on stagnation.
+Stop rather than creating a circular chain. If two parent cycles yield neither measurable progress nor decision-relevant learning and no credible alternative remains, return `STAGNATED`.

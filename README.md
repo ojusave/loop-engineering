@@ -1,0 +1,193 @@
+# Loop Engineering
+
+An agent skill for doing real work through bounded, evidence-backed feedback loops.
+
+Loop Engineering gives coding agents a compact operating system for tasks that
+need more than a one-shot answer. It establishes what success means, selects
+only the checks that matter, measures each meaningful attempt, corrects failed
+strategies, and stops with an honest status and evidence level.
+
+Use it for engineering, product and UI work, accessibility, research, strategy,
+public writing, and reusable agent prompts.
+
+## What it changes
+
+Without a loop, an agent can mistake activity for progress: a build passes, a
+page renders, a draft sounds polished, or a handoff template exists. This skill
+requires evidence tied to the intended result.
+
+Each invocation:
+
+1. Defines the starting point, target, proof requirement, and guardrails.
+2. Selects the smallest useful engineering, UX, research, editorial, or
+   verification checks.
+3. Runs bounded observe → predict → act → measure → learn cycles.
+4. Changes strategy when evidence contradicts the current approach.
+5. Separates artifact verification from outcome validation.
+6. Stops as `COMPLETE`, `NEEDS HUMAN JUDGMENT`, `BLOCKED`, `NOT FEASIBLE`, or
+   `STAGNATED`.
+
+## Quick install for multiple agents
+
+The shared `.agents/skills` location is recognized by Codex, Cursor, GitHub
+Copilot, Gemini CLI, OpenCode, and Windsurf.
+
+### Personal installation
+
+Available across your projects:
+
+```bash
+mkdir -p "$HOME/.agents/skills"
+git clone https://github.com/ojusave/loop-engineering.git \
+  "$HOME/.agents/skills/loop-engineering"
+```
+
+PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force -Path "$HOME\.agents\skills"
+git clone https://github.com/ojusave/loop-engineering.git `
+  "$HOME\.agents\skills\loop-engineering"
+```
+
+### Project installation
+
+To version the skill with a project, add it as a submodule:
+
+```bash
+mkdir -p .agents/skills
+git submodule add \
+  https://github.com/ojusave/loop-engineering.git \
+  .agents/skills/loop-engineering
+```
+
+If your agent does not scan `.agents/skills`, use its native path from the
+table below.
+
+## Installation by agent
+
+Paths were checked against the linked first-party documentation on July 14, 2026.
+
+| Agent | Project location | Personal/global location | Invoke | Documentation |
+| --- | --- | --- | --- | --- |
+| OpenAI Codex | `.agents/skills/loop-engineering` | `~/.agents/skills/loop-engineering` | Mention `$loop-engineering`, or choose it from `/skills` | [Codex skills](https://developers.openai.com/codex/skills) |
+| Claude Code | `.claude/skills/loop-engineering` | `~/.claude/skills/loop-engineering` | `/loop-engineering` | [Claude Code skills](https://code.claude.com/docs/en/skills) |
+| Cursor | `.cursor/skills/loop-engineering` or `.agents/skills/loop-engineering` | `~/.cursor/skills/loop-engineering` or `~/.agents/skills/loop-engineering` | `/loop-engineering` | [Cursor Agent Skills](https://cursor.com/docs/skills) |
+| GitHub Copilot | `.github/skills/loop-engineering`, `.claude/skills/loop-engineering`, or `.agents/skills/loop-engineering` | `~/.copilot/skills/loop-engineering` or `~/.agents/skills/loop-engineering` | `/loop-engineering`; in Copilot CLI, use `/skills reload` after installing | [GitHub Copilot skills](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills) |
+| Gemini CLI | `.gemini/skills/loop-engineering` or `.agents/skills/loop-engineering` | `~/.gemini/skills/loop-engineering` or `~/.agents/skills/loop-engineering` | Ask Gemini to use `loop-engineering`; inspect or reload with `/skills` | [Gemini CLI skills](https://geminicli.com/docs/cli/using-agent-skills/) |
+| OpenCode | `.opencode/skills/loop-engineering`, `.claude/skills/loop-engineering`, or `.agents/skills/loop-engineering` | `~/.config/opencode/skills/loop-engineering`, `~/.claude/skills/loop-engineering`, or `~/.agents/skills/loop-engineering` | Ask OpenCode to use `loop-engineering`; it loads through the `skill` tool | [OpenCode skills](https://opencode.ai/docs/skills) |
+| Windsurf | `.windsurf/skills/loop-engineering` or `.agents/skills/loop-engineering` | `~/.codeium/windsurf/skills/loop-engineering` or `~/.agents/skills/loop-engineering` | `@loop-engineering` | [Windsurf skills](https://docs.windsurf.com/windsurf/cascade/skills) |
+| Cline | `.cline/skills/loop-engineering`, `.clinerules/skills/loop-engineering`, or `.claude/skills/loop-engineering` | `~/.cline/skills/loop-engineering` | `/loop-engineering` | [Cline skills](https://docs.cline.bot/customization/skills) |
+
+### Gemini CLI installer
+
+Gemini CLI can also install the repository directly:
+
+```bash
+gemini skills install https://github.com/ojusave/loop-engineering
+```
+
+Add `--scope workspace` to install it only for the current project.
+
+### Native-path installation
+
+Replace `<skills-directory>` with any directory from the table:
+
+```bash
+mkdir -p <skills-directory>
+git clone https://github.com/ojusave/loop-engineering.git \
+  <skills-directory>/loop-engineering
+```
+
+The final structure must keep the complete skill folder together:
+
+```text
+<skills-directory>/
+└── loop-engineering/
+    ├── SKILL.md
+    ├── agents/
+    ├── references/
+    └── scripts/
+```
+
+Do not copy only `SKILL.md`. The skill routes work to its references and uses
+bundled scripts for deterministic state, handoff, prompt, claim, and editorial
+checks.
+
+## Use it
+
+Invoke the skill explicitly with the syntax your agent supports, then state the
+actual task:
+
+```text
+loop: reproduce and fix this checkout bug, then verify the real flow
+```
+
+```text
+use loop to add this onboarding flow with responsive and accessible UI
+```
+
+```text
+loop this task: research and write the article without generic AI prose
+```
+
+```text
+loop: create a reusable prompt for another coding agent and test its failure cases
+```
+
+The skill activates only when deliberately invoked. Incidental mentions of a
+programming loop, event loop, or feedback loop should not trigger it.
+
+## Update
+
+For a personal clone:
+
+```bash
+git -C "$HOME/.agents/skills/loop-engineering" pull --ff-only
+```
+
+For a project submodule:
+
+```bash
+git submodule update --remote --merge .agents/skills/loop-engineering
+```
+
+Reload skills using your agent's command or restart the agent if the update is
+not detected automatically.
+
+## Uninstall
+
+Delete the `loop-engineering` directory from the location where you installed
+it. For a Git submodule, remove it using your project's normal
+submodule-removal workflow.
+
+Loop state is stored separately under a project's `.loop/` directory only for
+deep or genuinely multi-cycle tasks. Removing the skill does not delete
+existing loop state.
+
+## Requirements and trust
+
+- The core skill is Markdown and follows the
+  [Agent Skills specification](https://agentskills.io/specification).
+- Python 3 is needed for the optional deterministic scripts. On Windows,
+  substitute `py -3` when `python3` is unavailable.
+- Review `SKILL.md` and the bundled scripts before installing any third-party
+  skill. Skills can instruct an agent to execute commands and modify files.
+- Loop Engineering does not grant broader authority. It still requires human
+  approval for production deployment, destructive operations, purchases,
+  external publication, permission changes, privacy-sensitive access, and
+  unsafe migrations.
+
+## Repository layout
+
+```text
+loop-engineering/
+├── SKILL.md                  # Compact router and invariant gates
+├── agents/openai.yaml        # Optional Codex UI metadata
+├── references/               # Specialist protocols
+└── scripts/                  # Deterministic checks
+```
+
+The skill uses progressive disclosure: the agent sees the name and description
+first, loads `SKILL.md` when invoked, and reads specialist references only when
+the task needs them.

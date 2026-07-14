@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Initialize gitignored project-local state for an orchestrated loop task."""
+"""Initialize private project-local state for an orchestrated loop task."""
 
 from __future__ import annotations
 
@@ -30,16 +30,45 @@ def slugify(value: str) -> str:
     return slug[:56].rstrip("-") or "task"
 
 
-def ensure_gitignore(root: Path) -> None:
-    gitignore = root / ".gitignore"
-    existing = gitignore.read_text(encoding="utf-8") if gitignore.exists() else ""
+def append_exclusion(path: Path) -> None:
+    existing = path.read_text(encoding="utf-8") if path.exists() else ""
     if any(line.strip() == ".loop/" for line in existing.splitlines()):
         return
+    path.parent.mkdir(parents=True, exist_ok=True)
     separator = "" if not existing or existing.endswith("\n") else "\n"
-    gitignore.write_text(
+    path.write_text(
         existing + separator + "# Local loop-engineering state\n.loop/\n",
         encoding="utf-8",
     )
+
+
+def ensure_private_state(root: Path, edit_gitignore: bool) -> None:
+    """Exclude .loop locally; edit the tracked ignore file only by explicit request."""
+    try:
+        ignored = subprocess.run(
+            ["git", "check-ignore", "-q", ".loop/probe"],
+            cwd=root,
+            check=False,
+        )
+        if ignored.returncode == 0:
+            return
+        if edit_gitignore:
+            append_exclusion(root / ".gitignore")
+            return
+        result = subprocess.run(
+            ["git", "rev-parse", "--git-path", "info/exclude"],
+            cwd=root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        exclude = Path(result.stdout.strip())
+        if not exclude.is_absolute():
+            exclude = root / exclude
+        append_exclusion(exclude.resolve())
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        # A non-Git directory has nothing to exclude from version control.
+        return
 
 
 def create_task(root: Path, task: str, mode: str) -> Path:
@@ -56,39 +85,27 @@ def create_task(root: Path, task: str, mode: str) -> Path:
 - **assignment_status:** ACTIVE
 - **evidence_state:** NO RELIABLE EVIDENCE
 
-## Outcome owner or beneficiary
+## Starting point
 
-## Outcome class
+## Target
 
-Choose one: state change | artifact | decision | knowledge | capability | risk reduction
+## Measure and threshold
 
-## Baseline
+## Proof required
 
-## Target state
+Choose one and state the evidence needed: ARTIFACT VERIFIED | OUTCOME VALIDATED | DECISION READY
 
-## Intended context of use
+## Guardrails and exclusions
 
-## Primary measure and threshold
-
-## Guardrails
-
-## Required evidence state
-
-Choose one: ARTIFACT VERIFIED | OUTCOME VALIDATED | DECISION READY
+## Next use or decision
 
 ## Strongest feasible evidence now
 
-## Next decision or use
+## Current facts and assumptions
 
-## Artifact-verification and outcome-validation evidence
+## Execution mode and check owners
 
-## Constraints and exclusions
-
-## Fresh observations and repository findings
-
-## Current direction and assumptions
-
-## Selected specialist loops and order
+Choose real specialist, cold same-session pass, or in-memory pass; list only material checks.
 
 ## Artifacts and handoffs
 
@@ -96,13 +113,9 @@ Choose one: ARTIFACT VERIFIED | OUTCOME VALIDATED | DECISION READY
 
 For each meaningful cycle record: hypothesis and mechanism; intervention or test; predicted observation; actual observation; delta from baseline or prior cycle; guardrail result; learning; next decision.
 
-## Verification, validation, and evidence limitations
+## Verification, validation, and limitations
 
 ## Rejected directions
-
-## Recovery and meta-improvement proposals
-
-For each proposed persistent loop, prompt, rubric, routing, tool, or evaluator change record: recurring failure pattern; proposed change; predicted benefit; representative success, failure, and regression cases; before-and-after evidence; authority or approval required; adoption decision.
 
 ## Risks and unresolved decisions
 
@@ -138,6 +151,11 @@ def main() -> int:
         default="standard",
         help="Initial loop depth",
     )
+    parser.add_argument(
+        "--edit-gitignore",
+        action="store_true",
+        help="Add .loop/ to the project .gitignore instead of Git's local exclude file",
+    )
     args = parser.parse_args()
 
     start = Path(args.root).expanduser()
@@ -145,7 +163,7 @@ def main() -> int:
         parser.error(f"Project path is not a directory: {start}")
 
     root = find_project_root(start)
-    ensure_gitignore(root)
+    ensure_private_state(root, args.edit_gitignore)
     task_dir = create_task(root, args.task.strip(), args.mode)
     print(task_dir)
     return 0
