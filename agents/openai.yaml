@@ -1,0 +1,4 @@
+interface:
+  display_name: "Loop Engineering"
+  short_description: "Run evidence-backed adaptive work loops"
+  default_prompt: "Use $loop-engineering to define an outcome contract, run bounded self-correcting cycles, preserve success criteria and guardrails, and report both assignment status and evidence state."
