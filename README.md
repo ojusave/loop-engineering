@@ -30,7 +30,7 @@ Each invocation:
 ## Quick install for multiple agents
 
 The shared `.agents/skills` location is recognized by Codex, Cursor, GitHub
-Copilot, Gemini CLI, OpenCode, and Windsurf.
+Copilot, Gemini CLI, OpenCode, and Windsurf / Devin Desktop.
 
 ### Personal installation
 
@@ -76,7 +76,7 @@ Paths were checked against the linked first-party documentation on July 14, 2026
 | GitHub Copilot | `.github/skills/loop-engineering`, `.claude/skills/loop-engineering`, or `.agents/skills/loop-engineering` | `~/.copilot/skills/loop-engineering` or `~/.agents/skills/loop-engineering` | `/loop-engineering`; in Copilot CLI, use `/skills reload` after installing | [GitHub Copilot skills](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills) |
 | Gemini CLI | `.gemini/skills/loop-engineering` or `.agents/skills/loop-engineering` | `~/.gemini/skills/loop-engineering` or `~/.agents/skills/loop-engineering` | Ask Gemini to use `loop-engineering`; inspect or reload with `/skills` | [Gemini CLI skills](https://geminicli.com/docs/cli/using-agent-skills/) |
 | OpenCode | `.opencode/skills/loop-engineering`, `.claude/skills/loop-engineering`, or `.agents/skills/loop-engineering` | `~/.config/opencode/skills/loop-engineering`, `~/.claude/skills/loop-engineering`, or `~/.agents/skills/loop-engineering` | Ask OpenCode to use `loop-engineering`; it loads through the `skill` tool | [OpenCode skills](https://opencode.ai/docs/skills) |
-| Windsurf | `.windsurf/skills/loop-engineering` or `.agents/skills/loop-engineering` | `~/.codeium/windsurf/skills/loop-engineering` or `~/.agents/skills/loop-engineering` | `@loop-engineering` | [Windsurf skills](https://docs.windsurf.com/windsurf/cascade/skills) |
+| Windsurf / Devin Desktop | `.windsurf/skills/loop-engineering` or `.agents/skills/loop-engineering` | `~/.codeium/windsurf/skills/loop-engineering` or `~/.agents/skills/loop-engineering` | `@loop-engineering` | [Cascade skills](https://docs.devin.ai/desktop/cascade/skills) |
 | Cline | `.cline/skills/loop-engineering`, `.clinerules/skills/loop-engineering`, or `.claude/skills/loop-engineering` | `~/.cline/skills/loop-engineering` | `/loop-engineering` | [Cline skills](https://docs.cline.bot/customization/skills) |
 
 ### Gemini CLI installer
@@ -135,21 +135,27 @@ loop this task: research and write the article without generic AI prose
 loop: create a reusable prompt for another coding agent and test its failure cases
 ```
 
-The skill activates only when deliberately invoked. Incidental mentions of a
-programming loop, event loop, or feedback loop should not trigger it.
+Loop Engineering is designed for explicit invocation. Its instructions tell
+compatible agents not to trigger it for incidental mentions of a programming
+loop, event loop, or feedback loop. Agent behavior ultimately depends on the
+host and model.
 
 ## Update
 
-For a personal clone:
+For a personal clone, set the path to the directory where you installed the
+skill:
 
 ```bash
-git -C "$HOME/.agents/skills/loop-engineering" pull --ff-only
+skill_dir="$HOME/.agents/skills/loop-engineering"
+git -C "$skill_dir" pull --ff-only
 ```
+
+If you used an agent's native directory, change `skill_dir` to that location.
 
 For a project submodule:
 
 ```bash
-git submodule update --remote --merge .agents/skills/loop-engineering
+git submodule update --remote .agents/skills/loop-engineering
 ```
 
 Reload skills using your agent's command or restart the agent if the update is
@@ -169,8 +175,10 @@ existing loop state.
 
 - The core skill is Markdown and follows the
   [Agent Skills specification](https://agentskills.io/specification).
-- Python 3 is needed for the optional deterministic scripts. On Windows,
-  substitute `py -3` when `python3` is unavailable.
+- Basic Markdown-only use does not require Python. Python 3 is required when
+  the workflow uses bundled scripts for persistent state, handoffs, or
+  deterministic checks. On Windows, substitute `py -3` when `python3` is
+  unavailable.
 - Review `SKILL.md` and the bundled scripts before installing any third-party
   skill. Skills can instruct an agent to execute commands and modify files.
 - Loop Engineering does not grant broader authority. It still requires human
@@ -191,3 +199,7 @@ loop-engineering/
 The skill uses progressive disclosure: the agent sees the name and description
 first, loads `SKILL.md` when invoked, and reads specialist references only when
 the task needs them.
+
+## License
+
+Loop Engineering is available under the [MIT License](LICENSE).
