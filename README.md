@@ -27,12 +27,38 @@ Each invocation:
 6. Stops as `COMPLETE`, `NEEDS HUMAN JUDGMENT`, `BLOCKED`, `NOT FEASIBLE`, or
    `STAGNATED`.
 
-## Quick install for multiple agents
+## Install
+
+### Recommended: Skills CLI
+
+If you have Node.js installed, use the open-source
+[Skills CLI](https://github.com/vercel-labs/skills):
+
+```bash
+npx skills add ojusave/loop-engineering
+```
+
+The installer downloads the skill directly from GitHub, detects supported
+agents, and lets you choose project or global installation. This repository is
+not an npm package and does not need a `package.json`; `npx` runs the installer,
+not Loop Engineering itself.
+
+For a non-interactive global installation to Codex:
+
+```bash
+npx skills add ojusave/loop-engineering \
+  --skill loop-engineering --agent codex --global --yes
+```
+
+The Skills CLI collects anonymous installation telemetry by default. Set
+`DISABLE_TELEMETRY=1` for the command if you prefer to opt out.
+
+### Manual Git installation
 
 The shared `.agents/skills` location is recognized by Codex, Cursor, GitHub
 Copilot, Gemini CLI, OpenCode, and Windsurf / Devin Desktop.
 
-### Personal installation
+#### Personal installation
 
 Available across your projects:
 
@@ -50,7 +76,7 @@ git clone https://github.com/ojusave/loop-engineering.git `
   "$HOME\.agents\skills\loop-engineering"
 ```
 
-### Project installation
+#### Project installation
 
 To version the skill with a project, add it as a submodule:
 
@@ -142,6 +168,12 @@ host and model.
 
 ## Update
 
+For an installation managed by the Skills CLI:
+
+```bash
+npx skills update
+```
+
 For a personal clone, set the path to the directory where you installed the
 skill:
 
@@ -162,6 +194,14 @@ Reload skills using your agent's command or restart the agent if the update is
 not detected automatically.
 
 ## Uninstall
+
+For a project installation managed by the Skills CLI:
+
+```bash
+npx skills remove loop-engineering
+```
+
+Add `--global` if you installed the skill globally.
 
 Delete the `loop-engineering` directory from the location where you installed
 it. For a Git submodule, remove it using your project's normal
