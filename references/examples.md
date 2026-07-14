@@ -12,7 +12,7 @@
 - [Strategy](#strategy)
 - [Prompt generation](#prompt-generation)
 - [Outcome-contract examples](#outcome-contract-examples)
-- [Handoff example](#handoff-example)
+- [Handoff examples](#handoff-examples)
 
 
 ## Activation
@@ -253,25 +253,73 @@ Next decision or use: submit or publish the abstract
 
 If the speaker's distinctive evidence is unavailable, stop `BLOCKED / NO RELIABLE EVIDENCE`. Do not invent a framework and call the copy complete.
 
-## Handoff example
+## Handoff examples
+
+These show completed lifecycle phases. Never copy all possible states into a return.
+
+### Successful return and parent closure
 
 ```text
 FROM: engineering
 TO: rendered-ui
-OBJECTIVE: Verify the first-time service creation path.
-ARTIFACT: Running application at http://localhost:3000
-CURRENT VERSION OR PATH: working tree after feature implementation
-PARENT OUTCOME AND TARGET MEASURE: first-time user creates a service successfully
-BASELINE AND REQUIRED EVIDENCE STATE: current flow unverified; OUTCOME VALIDATED
-VERIFIED FACTS: build and API integration tests pass
-EVIDENCE OR COMMANDS: npm test; npm run build
-KNOWN WEAKNESSES: mobile layout and permission error not inspected
-CONSTRAINTS AND NON-GOALS: preserve existing design tokens and API contract
-MAY CHANGE: layout, labels, local component structure
-MUST PRESERVE: service payload and route behavior
-TARGET ACCEPTANCE CRITERIA: primary path is clear at desktop and mobile; error is recoverable
-EXPECTED CONTRIBUTION AND PREDICTED OBSERVATION: clearer hierarchy should let representative users identify and complete the primary action
-ACTUAL OBSERVATION AND MEASURED DELTA: pending specialist test
-EVIDENCE STATE: ARTIFACT VERIFIED
-RETURN STATE: PASS | REWORK_REQUIRED | BLOCKED | NEEDS_HUMAN_JUDGMENT
+STATUS: CLOSED
+
+HANDOFF REQUEST
+Goal: Verify the first-time service creation path.
+Artifact: Running application at http://localhost:3000.
+Parent success: A first-time user creates a service without hidden knowledge; proof required is OUTCOME VALIDATED.
+Current state: Build and API integration tests pass; the rendered flow is unverified.
+Already verified: npm test; npm run build.
+Remaining uncertainty: Mobile hierarchy and permission-error recovery.
+Constraints: Preserve design tokens, payloads, and route behavior.
+Specialist task: Exercise the flow at 1440px and 390px, then trigger a permission error and recover.
+Acceptance checks: The primary action is identifiable; creation succeeds; the error names the problem and offers a working recovery action.
+Predicted contribution: Direct flow evidence should close the gap left by build and API checks.
+
+SPECIALIST RETURN
+Return status: PASS
+Findings: The primary action was visible without scrolling at both widths. The permission error named the missing role and the retry succeeded after the role changed.
+Changes: None; review only.
+Evidence: Browser run at 1440x900 and 390x844; screenshots service-desktop.png, service-mobile.png, and permission-error.png.
+Actual observation: Service creation completed once at each width and once after permission recovery; baseline had no rendered-flow evidence.
+Evidence state: OUTCOME VALIDATED
+Unresolved after review: Screen-reader output was not part of this rendered-UI handoff and remains assigned to accessibility review.
+Recommended next step: Parent accepts this return after integrating the separate accessibility result.
+
+PARENT CLOSURE
+Parent disposition: ACCEPTED
+Integration evidence: Parent reran service creation after accessibility changes at 390px; creation and permission recovery still succeeded.
+```
+
+### Blocked return and parent response
+
+```text
+FROM: audience-value
+TO: speaker
+STATUS: CLOSED
+
+HANDOFF REQUEST
+Goal: Confirm the conference abstract's claimed production finding.
+Artifact: Draft abstract stating that queued work predicts saturation earlier than request rate.
+Parent success: Every distinctive promise is supportable before submission.
+Current state: The claim appears in the draft but no source or speaker confirmation is recorded.
+Remaining uncertainty: Whether production data supports the comparative claim.
+Constraints: Do not invent telemetry, results, or privileged access.
+Specialist task: Provide a shareable aggregate result or narrow the claim.
+Acceptance checks: Evidence identifies the population, comparison, and limitation, or the unsupported claim is removed.
+Predicted contribution: Speaker evidence would make the promise verifiable; its absence should force rework rather than polished speculation.
+
+SPECIALIST RETURN
+Return status: BLOCKED
+Findings: The available notes distinguish the signals conceptually but contain no comparison showing earlier prediction.
+Changes: None.
+Evidence: Speaker notes sections 2–4; no aggregate chart, query result, or approved recollection supports the timing claim.
+Actual observation: The load-bearing claim remains unsupported.
+Evidence state: NO RELIABLE EVIDENCE
+Unresolved after review: Whether the speaker can provide an approved aggregate result.
+Recommended next step: Remove the comparative claim or wait for speaker evidence.
+
+PARENT CLOSURE
+Parent disposition: REWORK
+Integration evidence: The parent removed the unsupported timing claim and returned the abstract to argument review; submission remains incomplete.
 ```
